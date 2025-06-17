@@ -43,7 +43,6 @@ async function fetchRoomsAndBookings() {
   rooms.forEach(room => {
     const card = document.createElement('div');
     card.className = 'room-card';
-    // --- UPDATED HTML STRUCTURE FOR THE CARD ---
     card.innerHTML = `
       <div class="room-info">
         <h2>${room.name}</h2>
@@ -102,7 +101,6 @@ function addBookingListeners() {
       message.textContent = ''; // Clear previous messages
       const card = e.target.closest('.room-card');
 
-      // Get values from all the new fields
       const roomId = e.target.getAttribute('data-id');
       const userName = card.querySelector('.user-name').value;
       const activity = card.querySelector('.activity').value;
@@ -111,7 +109,6 @@ function addBookingListeners() {
       const endTime = card.querySelector('.end-time').value;
       const selectedDate = datePicker.value;
       
-      // Basic validation
       if (!userName || !activity) {
         alert('Please enter your name and the activity.');
         return;
@@ -124,7 +121,7 @@ function addBookingListeners() {
       const bookingStart = toTimestamp(selectedDate, startTime);
       const bookingEnd = toTimestamp(selectedDate, endTime);
 
-      // *** UPDATED CONFLICT CHECKING LOGIC ***
+      // --- THIS IS THE CONFLICT CHECKING LOGIC THAT WAS MISSING ---
       let query = supabase
         .from('bookings')
         .select('id, booking_type')
@@ -136,28 +133,25 @@ function addBookingListeners() {
 
       if (conflictError) {
         message.textContent = '❌ Could not check for booking conflicts.';
-        message.style.color = 'red';
+        message.className = 'error';
         return;
       }
 
-      // Rule: If you want a 'private' booking, NO other bookings can exist.
       if (bookingType === 'private' && conflictingBookings.length > 0) {
-        message.textContent = '❌ This time slot is unavailable for a private booking. Try booking as shared.';
-        message.style.color = 'red';
+        message.textContent = '❌ This time slot is unavailable for a private booking.';
+        message.className = 'error';
         return;
       }
 
-      // Rule: If you want a 'shared' booking, no 'private' bookings can exist.
       if (bookingType === 'shared') {
           const hasPrivateConflict = conflictingBookings.some(b => b.booking_type === 'private');
           if (hasPrivateConflict) {
             message.textContent = '❌ A private booking already exists in this time slot.';
-            message.style.color = 'red';
+            message.className = 'error';
             return;
           }
       }
 
-      // If all checks pass, insert the new booking
       const { error: insertError } = await supabase.from('bookings').insert([{
         room_id: roomId,
         start_time: bookingStart,
@@ -168,9 +162,11 @@ function addBookingListeners() {
       }]);
 
       if (insertError) {
-        console.error('❌ Booking insert failed:', insertError.message);
+        message.textContent = '❌ Booking failed: ' + insertError.message;
+        message.className = 'error';
+      } else {
         message.textContent = `✅ Room booked successfully as ${bookingType}!`;
-        message.style.color = 'green';
+        message.className = 'success';
       }
     });
   });
