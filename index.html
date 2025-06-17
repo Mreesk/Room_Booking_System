@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESADE Room Booking</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* --- ESADE BRAND THEME --- */
+    :root {
+      --esade-blue: #002C5F; /* ESADE's primary dark blue */
+      --esade-accent: #00A0E2; /* A lighter, accent blue */
+      --light-gray: #f3f4f6;
+      --text-dark: #111827;
+      --text-light: #4b5563;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif; /* Using new font */
+      background: var(--light-gray);
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .header-container {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .header-container img {
+        width: 200px;
+        margin-bottom: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--text-dark);
+      font-weight: 700;
+      margin: 0;
+    }
+    #booking-controls {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    #booking-controls label {
+      font-weight: 600;
+      margin-right: 10px;
+    }
+    #date-picker {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 1rem;
+        font-family: 'Montserrat', sans-serif;
+    }
+    #rooms {
+      max-width: 1200px;
+      margin: 20px auto;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 25px;
+      justify-content: center;
+    }
+    .room-card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      flex: 1 1 calc(33.333% - 40px);
+      box-sizing: border-box;
+      min-width: 330px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .room-info h2 {
+        color: var(--esade-blue); /* Heading with brand color */
+        font-weight: 700;
+    }
+    .room-info p {
+        color: var(--text-light);
+        font-size: 0.95rem;
+        margin: 5px 0;
+    }
+
+    .booking-form {
+        border-top: 1px solid #e5e7eb;
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+
+    .input-group {
+        margin-bottom: 15px;
+    }
+    .input-group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .input-group input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 1rem;
+        box-sizing: border-box;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+    .radio-group label {
+        font-weight: normal;
+        margin: 0;
+    }
+
+    .time-picker-group {
+        display: flex;
+        gap: 15px;
+        justify-content: space-between;
+    }
+    .time-picker {
+        flex: 1;
+    }
+    .time-picker label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .time-picker select {
+        width: 100%;
+    }
+    
+    select, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 1rem;
+      font-family: 'Montserrat', sans-serif;
+    }
+    button {
+      margin-top: 20px;
+      background-color: var(--esade-blue); /* Button with brand color */
+      color: white;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: var(--esade-accent); /* Hover with accent color */
+    }
+    #message {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: 600;
+      height: 20px;
+    }
+    #message.success {
+        color: green;
+    }
+    #message.error {
+        color: #d9534f;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="header-container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/e/ed/Esade_logo_nuevo.png" alt="ESADE">
+    <h1>Study Room Booking</h1>
+  </div>
+
+  <div id="booking-controls">
+      <label for="date-picker">Select a Date:</label>
+      <input type="date" id="date-picker">
+  </div>
+
+  <div id="rooms">Select a date to see available rooms.</div>
+  <div id="message"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
