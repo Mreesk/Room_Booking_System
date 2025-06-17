@@ -92,44 +92,149 @@ async function fetchRoomsAndBookings() {
     roomList.appendChild(card);
   });
 
-  addBookingListeners();
-}
-
+// In app.js
 function addBookingListeners() {
   document.querySelectorAll('.book-btn').forEach(button => {
     button.addEventListener('click', async (e) => {
-      // Clear any previous messages
-      message.textContent = ''; 
-
       const card = e.target.closest('.room-card');
+
+      const roomId = e.target.getAttribute('data-id');
+      const userName = card.querySelector('.user-name').value;
+      const activity = card.querySelector('.activity').value;
+      const bookingType = card.querySelector(`input[name="booking-type-${roomId}"]:checked`).value;
       const startTime = card.querySelector('.start-time').value;
       const endTime = card.querySelector('.end-time').value;
-      const roomId = e.target.getAttribute('data-id');
-
+      const selectedDate = datePicker.value;
+      
+      if (!userName || !activity) {
+        alert('Please enter your name and the activity.');
+        return;
+      }
       if (startTime >= endTime) {
         alert('End time must be after start time.');
         return;
       }
+      
+      const bookingStart = toTimestamp(selectedDate, startTime);
+      const bookingEnd = toTimestamp(selectedDate, endTime);
 
-      const { error } = await supabase.from('bookings').insert([{
-        room_id: roomId,
-        start_time: toTimestamp(startTime),
-        end_time: toTimestamp(endTime)
-      }]);
+      const { data: conflictingBookings, error: conflictError } = await supabase
+        .from('bookings')
+        .select('id, booking_type')
+        .eq('room_id', roomId)
+        .lt('start_time', bookingEnd)
+        .gt('end_time', bookingStart);
 
-      if (error) {
-        console.error('❌ Booking insert failed:', error.message);
-        message.textContent = '❌ Booking failed: ' + error.message;
-        message.style.color = 'red';
+      if (conflictError) {
+        alert('Error: Could not check for booking conflicts. Please try again.');
+        return;
+      }
+
+      if (bookingType === 'private' && conflictingBookings.length > 0) {
+        alert('This time slot is unavailable for a private booking. Please try booking as shared or choose another time.');
+        return;
+      }
+
+      if (bookingType === 'shared') {
+          const hasPrivateConflict = conflictingBookings.some(b => b.booking_type === 'private');
+          if (hasPrivateConflict) {
+            alert('A private booking already exists in this time slot. Please choose another time.');
+            return;
+          }
+      }
+
+      // Insert the booking AND select the data that was just inserted
+      const { data: newBooking, error: insertError } = await supabase
+        .from('bookings')
+        .insert([{
+          room_id: roomId,
+          start_time: bookingStart,
+          end_time: bookingEnd,
+          user_name: userName,
+          activity: activity,
+          booking_type: bookingType
+        }])
+        .select()
+        .single(); // .select().single() gets the new row back
+
+      if (insertError) {
+        alert('Booking failed: ' + insertError.message);
       } else {
-        // --- THIS IS THE UPDATED SUCCESS LOGIC ---
-        message.textContent = '✅ Room booked successfully!';
-        message.style.color = 'green';
-        
-        // Provide clear feedback by disabling the button and changing its text
-        const clickedButton = e.target;
-        clickedButton.textContent = 'Booked!';
-        clickedButton.disabled = true;
+        // --- REDIRECT TO CONFIRMATION PAGE ON SUCCESS ---
+        window.location.href = `confirmation.html?bookingId=${newBooking.id}`;
+      }
+    });
+  });
+}// In app.js
+function addBookingListeners() {
+  document.querySelectorAll('.book-btn').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const card = e.target.closest('.room-card');
+
+      const roomId = e.target.getAttribute('data-id');
+      const userName = card.querySelector('.user-name').value;
+      const activity = card.querySelector('.activity').value;
+      const bookingType = card.querySelector(`input[name="booking-type-${roomId}"]:checked`).value;
+      const startTime = card.querySelector('.start-time').value;
+      const endTime = card.querySelector('.end-time').value;
+      const selectedDate = datePicker.value;
+      
+      if (!userName || !activity) {
+        alert('Please enter your name and the activity.');
+        return;
+      }
+      if (startTime >= endTime) {
+        alert('End time must be after start time.');
+        return;
+      }
+      
+      const bookingStart = toTimestamp(selectedDate, startTime);
+      const bookingEnd = toTimestamp(selectedDate, endTime);
+
+      const { data: conflictingBookings, error: conflictError } = await supabase
+        .from('bookings')
+        .select('id, booking_type')
+        .eq('room_id', roomId)
+        .lt('start_time', bookingEnd)
+        .gt('end_time', bookingStart);
+
+      if (conflictError) {
+        alert('Error: Could not check for booking conflicts. Please try again.');
+        return;
+      }
+
+      if (bookingType === 'private' && conflictingBookings.length > 0) {
+        alert('This time slot is unavailable for a private booking. Please try booking as shared or choose another time.');
+        return;
+      }
+
+      if (bookingType === 'shared') {
+          const hasPrivateConflict = conflictingBookings.some(b => b.booking_type === 'private');
+          if (hasPrivateConflict) {
+            alert('A private booking already exists in this time slot. Please choose another time.');
+            return;
+          }
+      }
+
+      // Insert the booking AND select the data that was just inserted
+      const { data: newBooking, error: insertError } = await supabase
+        .from('bookings')
+        .insert([{
+          room_id: roomId,
+          start_time: bookingStart,
+          end_time: bookingEnd,
+          user_name: userName,
+          activity: activity,
+          booking_type: bookingType
+        }])
+        .select()
+        .single(); // .select().single() gets the new row back
+
+      if (insertError) {
+        alert('Booking failed: ' + insertError.message);
+      } else {
+        // --- REDIRECT TO CONFIRMATION PAGE ON SUCCESS ---
+        window.location.href = `confirmation.html?bookingId=${newBooking.id}`;
       }
     });
   });
