@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking Confirmed - ESADE</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --esade-blue: #002C5F;
+      --light-gray: #f3f4f6;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--light-gray);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .confirmation-container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+    }
+    .confirmation-container img {
+        width: 150px;
+        margin-bottom: 20px;
+    }
+    h1 {
+      color: var(--esade-blue);
+      margin-top: 0;
+      font-size: 1.8rem;
+    }
+    .details {
+      text-align: left;
+      margin: 30px 0;
+      padding: 20px;
+      background-color: #f9fafb;
+      border-radius: 8px;
+    }
+    .details p {
+        margin: 10px 0;
+        font-size: 1rem;
+        color: #374151;
+    }
+    .details strong {
+        color: #111827;
+    }
+    .home-link {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 12px 25px;
+        background-color: var(--esade-blue);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: background-color 0.2s;
+    }
+    .home-link:hover {
+        background-color: #00A0E2;
+    }
+  </style>
+</head>
+<body>
+  <div class="confirmation-container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/ESADE_Logo.svg" alt="ESADE Logo">
+    <h1>Booking Confirmed!</h1>
+    
+    <div id="booking-details" class="details">
+      <p>Loading booking details...</p>
+    </div>
+
+    <a href="index.html" class="home-link">Book Another Room</a>
+  </div>
+
+  <script type="module" src="confirmation.js"></script>
+</body>
+</html>
