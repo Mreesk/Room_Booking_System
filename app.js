@@ -98,75 +98,38 @@ async function fetchRoomsAndBookings() {
 function addBookingListeners() {
   document.querySelectorAll('.book-btn').forEach(button => {
     button.addEventListener('click', async (e) => {
-      message.textContent = ''; // Clear previous messages
-      const card = e.target.closest('.room-card');
+      // Clear any previous messages
+      message.textContent = ''; 
 
-      const roomId = e.target.getAttribute('data-id');
-      const userName = card.querySelector('.user-name').value;
-      const activity = card.querySelector('.activity').value;
-      const bookingType = card.querySelector(`input[name="booking-type-${roomId}"]:checked`).value;
+      const card = e.target.closest('.room-card');
       const startTime = card.querySelector('.start-time').value;
       const endTime = card.querySelector('.end-time').value;
-      const selectedDate = datePicker.value;
-      
-      if (!userName || !activity) {
-        alert('Please enter your name and the activity.');
-        return;
-      }
+      const roomId = e.target.getAttribute('data-id');
+
       if (startTime >= endTime) {
         alert('End time must be after start time.');
         return;
       }
-      
-      const bookingStart = toTimestamp(selectedDate, startTime);
-      const bookingEnd = toTimestamp(selectedDate, endTime);
 
-      // --- THIS IS THE CONFLICT CHECKING LOGIC THAT WAS MISSING ---
-      let query = supabase
-        .from('bookings')
-        .select('id, booking_type')
-        .eq('room_id', roomId)
-        .lt('start_time', bookingEnd)
-        .gt('end_time', bookingStart);
-
-      const { data: conflictingBookings, error: conflictError } = await query;
-
-      if (conflictError) {
-        message.textContent = '❌ Could not check for booking conflicts.';
-        message.className = 'error';
-        return;
-      }
-
-      if (bookingType === 'private' && conflictingBookings.length > 0) {
-        message.textContent = '❌ This time slot is unavailable for a private booking.';
-        message.className = 'error';
-        return;
-      }
-
-      if (bookingType === 'shared') {
-          const hasPrivateConflict = conflictingBookings.some(b => b.booking_type === 'private');
-          if (hasPrivateConflict) {
-            message.textContent = '❌ A private booking already exists in this time slot.';
-            message.className = 'error';
-            return;
-          }
-      }
-
-      const { error: insertError } = await supabase.from('bookings').insert([{
+      const { error } = await supabase.from('bookings').insert([{
         room_id: roomId,
-        start_time: bookingStart,
-        end_time: bookingEnd,
-        user_name: userName,
-        activity: activity,
-        booking_type: bookingType
+        start_time: toTimestamp(startTime),
+        end_time: toTimestamp(endTime)
       }]);
 
-      if (insertError) {
-        message.textContent = '❌ Booking failed: ' + insertError.message;
-        message.className = 'error';
+      if (error) {
+        console.error('❌ Booking insert failed:', error.message);
+        message.textContent = '❌ Booking failed: ' + error.message;
+        message.style.color = 'red';
       } else {
-        message.textContent = `✅ Room booked successfully as ${bookingType}!`;
-        message.className = 'success';
+        // --- THIS IS THE UPDATED SUCCESS LOGIC ---
+        message.textContent = '✅ Room booked successfully!';
+        message.style.color = 'green';
+        
+        // Provide clear feedback by disabling the button and changing its text
+        const clickedButton = e.target;
+        clickedButton.textContent = 'Booked!';
+        clickedButton.disabled = true;
       }
     });
   });
